@@ -1,0 +1,10 @@
+{
+  "cSpell.words": [
+    "ADMINPASSWORD",
+    "ADMINUSERNAME",
+    "BASICAUTH",
+    "INITDB",
+    "spect"
+  ],
+  "eslint.useFlatConfig": true
+}
