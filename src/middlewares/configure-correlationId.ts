@@ -7,14 +7,13 @@ const configureCorrelationId = (
   next: NextFunction,
 ) => {
   try {
-    let correlationId = req.headers["x-correlation-id"];
+    let correlationId = req.headers["x-correlation-id"] as string | undefined;
 
-    if (!correlationId) {
-      const correlationId = nanoid(12);
+    if (!correlationId || typeof correlationId !== "string") {
+      correlationId = nanoid(12);
       req.headers["x-correlation-id"] = correlationId;
     }
 
-    req.correlationId = correlationId;
     res.setHeader("x-correlation-id", correlationId);
 
     next();
