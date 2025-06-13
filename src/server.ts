@@ -15,8 +15,9 @@ const config = Config.getInstance();
 
 async function main() {
   try {
-    const server = http.createServer(app.getApp());
+    app.connectDB();
 
+    const server = http.createServer(app.getApp());
     server.listen(config.port);
   } catch (_err) {
     process.exit(1);

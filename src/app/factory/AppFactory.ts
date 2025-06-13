@@ -7,8 +7,6 @@ abstract class AppFactory {
   constructor() {
     this.configureBodyParsers();
     this.configureCORS();
-
-    this.connectDB();
   }
 
   private configureBodyParsers() {
