@@ -8,7 +8,7 @@ export const ENVIRONMENT = {
 export type TEnvironment = (typeof ENVIRONMENT)[keyof typeof ENVIRONMENT];
 
 class Config {
-  private static config: Config = new Config();
+  private static instance: Config = new Config();
 
   environment: TEnvironment;
   port: number;
@@ -33,7 +33,7 @@ class Config {
   }
 
   public static getInstance(): Config {
-    return Config.config;
+    return Config.instance;
   }
 }
 

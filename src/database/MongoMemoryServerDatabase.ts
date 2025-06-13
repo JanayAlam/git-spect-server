@@ -1,26 +1,34 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 
 import mongoose from "mongoose";
+import Logger from "../logger/Logger";
 import DatabaseFactory from "./factory/DatabaseFactory";
 
+// logger
+const logger = Logger.getInstance().logger;
+
 class MongoMemoryServerDatabase extends DatabaseFactory {
-  mongoMemoryServer = new MongoMemoryServer();
+  mongoMemoryServer: MongoMemoryServer | null = null;
 
   async connectDatabase(): Promise<void> {
+    this.mongoMemoryServer = await MongoMemoryServer.create();
+
     this.database = await mongoose.connect(this.mongoMemoryServer.getUri(), {
       autoIndex: false,
     });
 
-    // TODO: Log
+    logger.info("Test database connection established");
   }
 
   async closeConnection(): Promise<void> {
     await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
 
-    await this.mongoMemoryServer.stop();
+    if (this.mongoMemoryServer) {
+      await this.mongoMemoryServer.stop();
+    }
 
-    // TODO: Log
+    logger.info("Database connection closed");
   }
 }
 

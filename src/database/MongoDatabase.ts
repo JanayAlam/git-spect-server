@@ -1,26 +1,31 @@
 import mongoose from "mongoose";
+import Logger from "../logger/Logger";
 import Config from "../parameters/Config";
 import DatabaseFactory from "./factory/DatabaseFactory";
 
 // configuration variables
-const config = Config.getInstance();
+const configInstance = Config.getInstance();
+
+// logger
+const logger = Logger.getInstance().logger;
 
 class MongoDatabase extends DatabaseFactory {
   async connectDatabase(): Promise<void> {
-    const connectionURI = config.mongodbConnectionURI;
+    const connectionURI = configInstance.mongodbConnectionURI;
 
     this.database = await mongoose.connect(connectionURI, {
-      dbName: config.databaseName,
+      dbName: configInstance.databaseName,
       autoIndex: false,
     });
 
-    // TODO: Log
+    logger.info("Database connection established");
   }
 
   async closeConnection(): Promise<void> {
     if (this.database) {
       await mongoose.connection.close();
-      // TODO: Log
+
+      logger.info("Database connection closed");
     }
   }
 }
