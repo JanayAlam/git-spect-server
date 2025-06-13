@@ -3,6 +3,7 @@
     "ADMINPASSWORD",
     "ADMINUSERNAME",
     "BASICAUTH",
+    "IAPI",
     "INITDB",
     "spect"
   ],

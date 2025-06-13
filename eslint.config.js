@@ -23,20 +23,15 @@ export default [
     },
 
     rules: {
-      "import/extensions": [
-        "error",
-        "ignorePackages",
-        {
-          js: "never",
-          ts: "never",
-          mjs: "never",
-        },
-      ],
       "prettier/prettier": ["error", { endOfLine: "auto" }],
       "no-console": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
       ],
     },
   },
