@@ -7,7 +7,7 @@ const configInstance = Config.getInstance();
 class Logger {
   private static instance = new Logger();
 
-  logger: winston.Logger;
+  private logger: winston.Logger;
 
   private constructor() {
     const transports: transport[] = [];
@@ -29,6 +29,26 @@ class Logger {
 
   public static getInstance(): Logger {
     return this.instance;
+  }
+
+  public info(message: string, ...meta: any[]) {
+    this.logger.info(message, ...meta);
+  }
+
+  public warn(message: string, ...meta: any[]) {
+    this.logger.warn(message, ...meta);
+  }
+
+  public error(message: string, ...meta: any[]) {
+    this.logger.error(message, ...meta);
+  }
+
+  public debug(message: string, ...meta: any[]) {
+    this.logger.debug(message, ...meta);
+  }
+
+  public http(message: string, ...meta: any[]) {
+    this.logger.http(message, ...meta);
   }
 }
 

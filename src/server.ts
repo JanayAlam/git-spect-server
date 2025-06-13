@@ -16,7 +16,7 @@ async function main() {
   const configInstance = Config.getInstance();
 
   // logger
-  const logger = Logger.getInstance().logger;
+  const logger = Logger.getInstance();
 
   try {
     await app.connectDB();

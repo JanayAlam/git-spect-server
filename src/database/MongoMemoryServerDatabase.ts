@@ -5,7 +5,7 @@ import Logger from "../logger";
 import DatabaseFactory from "./factory/DatabaseFactory";
 
 // logger
-const logger = Logger.getInstance().logger;
+const logger = Logger.getInstance();
 
 class MongoMemoryServerDatabase extends DatabaseFactory {
   mongoMemoryServer: MongoMemoryServer | null = null;

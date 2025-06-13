@@ -7,7 +7,7 @@ import DatabaseFactory from "./factory/DatabaseFactory";
 const configInstance = Config.getInstance();
 
 // logger
-const logger = Logger.getInstance().logger;
+const logger = Logger.getInstance();
 
 class MongoDatabase extends DatabaseFactory {
   async connectDatabase(): Promise<void> {

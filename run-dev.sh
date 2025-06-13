@@ -1,7 +1,5 @@
 #!/bin/bash
 
-docker compose down
-
-docker compose up --build -d
+docker compose up -d
 
 docker-compose logs -f git-spect-server

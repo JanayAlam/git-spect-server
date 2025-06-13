@@ -7,5 +7,7 @@ declare module "express-serve-static-core" {
       "x-correlation-id": string;
       authorization: string;
     };
+
+    correlationId: String;
   }
 }
