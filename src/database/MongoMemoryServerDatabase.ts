@@ -1,7 +1,7 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 
 import mongoose from "mongoose";
-import Logger from "../logger/Logger";
+import Logger from "../logger";
 import DatabaseFactory from "./factory/DatabaseFactory";
 
 // logger

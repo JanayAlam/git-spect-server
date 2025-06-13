@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Logger from "../logger/Logger";
+import Logger from "../logger";
 import Config from "../parameters/Config";
 import DatabaseFactory from "./factory/DatabaseFactory";
 

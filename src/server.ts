@@ -2,22 +2,22 @@ import dotenv from "dotenv";
 import http from "node:http";
 
 import App from "./app/App";
-import Logger from "./logger/Logger";
+import Logger from "./logger";
 import Config from "./parameters/Config";
 
 // loading all env variables
 dotenv.config();
 
-// express application
-const app = new App();
-
-// configuration variables
-const configInstance = Config.getInstance();
-
-// logger
-const logger = Logger.getInstance().logger;
-
 async function main() {
+  // express application
+  const app = new App();
+
+  // configuration variables
+  const configInstance = Config.getInstance();
+
+  // logger
+  const logger = Logger.getInstance().logger;
+
   try {
     await app.connectDB();
 
