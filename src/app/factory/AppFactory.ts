@@ -1,8 +1,12 @@
 import cors from "cors";
 import express from "express";
+import morgan from "morgan";
 
 import healthRouter from "../../api/v1/health";
+import Logger from "../../logger";
 import configureCorrelationId from "../../middlewares/configure-correlationId";
+
+const loggerInstance = Logger.getInstance();
 
 abstract class AppFactory {
   private app: express.Express = express();
@@ -34,6 +38,13 @@ abstract class AppFactory {
 
   private addAppMiddlewares() {
     this.app.use(configureCorrelationId);
+    this.app.use(
+      morgan(":method :url :status - :response-time ms", {
+        stream: {
+          write: (message) => loggerInstance.http(message.trim()),
+        },
+      }),
+    );
   }
 
   private configureAPIs() {

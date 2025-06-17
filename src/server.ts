@@ -25,7 +25,7 @@ async function main() {
     server.listen(configInstance.port);
     logger.info(`Server running on port ${configInstance.port}`);
   } catch (err) {
-    logger.error((err as Error)?.message);
+    logger.error("Error trying to run the application:", err);
     process.exit(1);
   }
 }

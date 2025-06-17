@@ -16,8 +16,10 @@ class Config {
   mongodbConnectionURI: string;
   databaseName: string;
 
+  logLevel: string;
+
   private constructor() {
-    const { NODE_ENV, PORT, MONGODB_CONNECTION_URI, DATABASE_NAME } =
+    const { NODE_ENV, PORT, MONGODB_CONNECTION_URI, DATABASE_NAME, LOG_LEVEL } =
       process.env;
 
     this.port = parseInt(PORT || "8000") || 8000;
@@ -30,6 +32,8 @@ class Config {
     this.mongodbConnectionURI =
       MONGODB_CONNECTION_URI || "mongodb://localhost:27017";
     this.databaseName = DATABASE_NAME || "db-dev";
+
+    this.logLevel = LOG_LEVEL || "info";
   }
 
   public static getInstance(): Config {
