@@ -11,27 +11,27 @@ class Config {
   private static instance: Config = new Config();
 
   environment: TEnvironment;
+
+  appName: string;
   port: number;
 
-  mongodbConnectionURI: string;
-  databaseName: string;
+  databaseUrl: string;
 
   logLevel: string;
 
   private constructor() {
-    const { NODE_ENV, PORT, MONGODB_CONNECTION_URI, DATABASE_NAME, LOG_LEVEL } =
-      process.env;
+    const { NODE_ENV, APP_NAME, PORT, DATABASE_URL, LOG_LEVEL } = process.env;
 
-    this.port = parseInt(PORT || "8000") || 8000;
     this.environment = Object.values(ENVIRONMENT).includes(
       NODE_ENV as TEnvironment,
     )
       ? (NODE_ENV as TEnvironment)
       : ENVIRONMENT.DEVELOPMENT;
 
-    this.mongodbConnectionURI =
-      MONGODB_CONNECTION_URI || "mongodb://localhost:27017";
-    this.databaseName = DATABASE_NAME || "db-dev";
+    this.port = parseInt(PORT || "8000") || 8000;
+    this.appName = APP_NAME || "GitSpectServer";
+
+    this.databaseUrl = DATABASE_URL || "db-dev";
 
     this.logLevel = LOG_LEVEL || "info";
   }

@@ -1,0 +1,25 @@
+services:
+  git-spect-test-db:
+    image: postgres:13
+    restart: always
+    container_name: git-spect-test-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: prisma
+      POSTGRES_PASSWORD: prisma
+      POSTGRES_DB: git_spect_test
+
+  git-spect-server:
+    depends_on:
+      - git-spect-test-db
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    ports:
+      - "8001:8000"
+    env_file:
+      - .env.test
+
+volumes:
+  postgres-data:

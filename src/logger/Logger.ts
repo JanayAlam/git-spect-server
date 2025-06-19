@@ -14,7 +14,10 @@ class Logger {
   private constructor() {
     const transports: transport[] = [];
 
-    if (configInstance.environment === ENVIRONMENT.DEVELOPMENT) {
+    if (
+      configInstance.environment === ENVIRONMENT.DEVELOPMENT ||
+      configInstance.environment === ENVIRONMENT.TEST
+    ) {
       transports.push(this.createConsoleLogTransport());
     }
 
