@@ -1,5 +1,5 @@
 import winston, { transport } from "winston";
-import Config, { ENVIRONMENT } from "../parameters/Config";
+import Config, { ENVIRONMENT } from "../parameters/config";
 
 const { printf, combine, timestamp, colorize, align, errors } = winston.format;
 

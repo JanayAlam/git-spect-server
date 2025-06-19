@@ -1,11 +1,4 @@
-export const ENVIRONMENT = {
-  PRODUCTION: "production",
-  STAGING: "staging",
-  TEST: "test",
-  DEVELOPMENT: "development",
-} as const;
-
-export type TEnvironment = (typeof ENVIRONMENT)[keyof typeof ENVIRONMENT];
+import { ENVIRONMENT, TEnvironment } from "./config.types";
 
 class Config {
   private static instance: Config = new Config();

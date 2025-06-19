@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getHealthStatusController } from "./controllers/get-health-status.controller";
+import { getHealthStatusController } from "./controllers/get-status.controllers";
 
 const healthRouter = Router({ mergeParams: true });
 

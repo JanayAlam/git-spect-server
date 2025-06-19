@@ -4,7 +4,7 @@ import path from "node:path";
 
 import createApp from "./app-factory";
 import Logger from "./logger";
-import Config from "./parameters/Config";
+import Config from "./parameters/config";
 
 async function main() {
   // configuration variables
