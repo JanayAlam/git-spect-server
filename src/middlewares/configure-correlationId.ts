@@ -1,20 +1,22 @@
 import { NextFunction, Request, Response } from "express";
 import { nanoid } from "nanoid";
 
+const KEY = "x-correlation-id";
+
 const configureCorrelationId = (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    let correlationId = req.headers["x-correlation-id"] as string | undefined;
+    let correlationId = req.headers[KEY] as string | undefined;
 
     if (!correlationId || typeof correlationId !== "string") {
       correlationId = nanoid(12);
-      req.headers["x-correlation-id"] = correlationId;
+      req.headers[KEY] = correlationId;
     }
 
-    res.setHeader("x-correlation-id", correlationId);
+    res.setHeader(KEY, correlationId);
 
     next();
   } catch (err) {

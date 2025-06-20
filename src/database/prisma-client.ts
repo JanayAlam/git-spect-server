@@ -1,8 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import Logger from "../logger";
-
-// logger instance
-const logger = Logger.getInstance();
+import logger from "../utils/logger";
 
 const prisma = new PrismaClient({
   errorFormat: "pretty",

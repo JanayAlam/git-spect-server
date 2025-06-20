@@ -1,4 +1,9 @@
-import { ENVIRONMENT, TEnvironment } from "./config.types";
+import {
+  ENVIRONMENT,
+  LOG_TARGET,
+  TEnvironment,
+  TLogTarget,
+} from "./config.types";
 
 class Config {
   private static instance: Config = new Config();
@@ -10,10 +15,10 @@ class Config {
 
   databaseUrl: string;
 
-  logLevel: string;
+  log: TLogTarget[];
 
   private constructor() {
-    const { NODE_ENV, APP_NAME, PORT, DATABASE_URL, LOG_LEVEL } = process.env;
+    const { NODE_ENV, APP_NAME, PORT, DATABASE_URL, LOG } = process.env;
 
     this.environment = Object.values(ENVIRONMENT).includes(
       NODE_ENV as TEnvironment,
@@ -26,7 +31,7 @@ class Config {
 
     this.databaseUrl = DATABASE_URL || "db-dev";
 
-    this.logLevel = LOG_LEVEL || "info";
+    this.log = LOG ? (LOG.split(",") as TLogTarget[]) : [LOG_TARGET.CONSOLE];
   }
 
   public static getInstance(): Config {

@@ -3,8 +3,8 @@ import http from "node:http";
 import path from "node:path";
 
 import createApp from "./app-factory";
-import Logger from "./logger";
 import Config from "./parameters/config";
+import logger from "./utils/logger";
 
 async function main() {
   // configuration variables
@@ -17,9 +17,6 @@ async function main() {
 
   // express application
   const app = createApp();
-
-  // logger
-  const logger = Logger.getInstance();
 
   try {
     const server = http.createServer(app);
