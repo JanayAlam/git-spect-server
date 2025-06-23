@@ -7,11 +7,71 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserStatus {
+  ACTIVE
+  BANNED
+  PENDING
+}
+
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String      @id @default(uuid())
+  email       String      @unique
+  avatarUrl   String?     @map("avatar_url")
+  name        String?
+  provider    String
+  providerId  String      @map("provider_id")
+  accessToken String?     @map("access_token")
+  userStatus  UserStatus  @default(ACTIVE) @map("user_status")
+  isDeleted   Boolean     @default(false) @map("is_deleted")
+  roles       UserRoles[]
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@unique([provider, providerId])
+  @@index([email])
+}
+
+model Role {
+  id          String            @id @default(uuid())
+  name        String            @unique @db.VarChar(15)
+  description String?           @db.VarChar(255)
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+  users       UserRoles[]
+  permissions RolePermissions[]
+
+  @@index([name])
+}
+
+model UserRoles {
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @map("user_id")
+  role      Role     @relation(fields: [roleId], references: [id])
+  roleId    String   @map("role_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@id([userId, roleId])
+}
+
+model Permission {
+  id          String            @id @default(uuid())
+  name        String            @unique @db.VarChar(15)
+  description String?           @db.VarChar(255)
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+  roles       RolePermissions[]
+
+  @@index([name])
+}
+
+model RolePermissions {
+  role         Role       @relation(fields: [roleId], references: [id])
+  roleId       String     @map("role_id")
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  permissionId String     @map("permission_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  @@id([roleId, permissionId])
 }
