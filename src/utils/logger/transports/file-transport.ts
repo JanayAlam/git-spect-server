@@ -3,7 +3,11 @@ import DailyRotateFile from "winston-daily-rotate-file";
 import { onlyLevel } from "../logger.helpers";
 import { LOGGER_LEVEL, TLoggerLevel } from "../logger.types";
 
-const createFileTransport = (level: TLoggerLevel, filename: string) => {
+const createFileTransport = (
+  level: TLoggerLevel,
+  filename: string,
+  maxFiles = "14d",
+) => {
   let fileFormat = onlyLevel(level || LOGGER_LEVEL.INFO);
 
   if (level === LOGGER_LEVEL.ERROR) {
@@ -19,7 +23,7 @@ const createFileTransport = (level: TLoggerLevel, filename: string) => {
     datePattern: "DD-MM-YYYY-HH",
     zippedArchive: true,
     maxSize: "20m",
-    maxFiles: "14d",
+    maxFiles,
     format: fileFormat,
   });
 };
@@ -32,6 +36,7 @@ export const infoFileTransport = createFileTransport(
 export const httpFileTransport = createFileTransport(
   LOGGER_LEVEL.HTTP,
   "logs/http/http-%DATE%.log",
+  "7d",
 );
 
 export const errorFileTransport = createFileTransport(

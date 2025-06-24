@@ -17,8 +17,11 @@ class Config {
 
   log: TLogTarget[];
 
+  elasticsearchUrl: string | undefined;
+
   private constructor() {
-    const { NODE_ENV, APP_NAME, PORT, DATABASE_URL, LOG } = process.env;
+    const { NODE_ENV, APP_NAME, PORT, DATABASE_URL, LOG, ELASTICSEARCH_URL } =
+      process.env;
 
     this.environment = Object.values(ENVIRONMENT).includes(
       NODE_ENV as TEnvironment,
@@ -32,6 +35,8 @@ class Config {
     this.databaseUrl = DATABASE_URL || "db-dev";
 
     this.log = LOG ? (LOG.split(",") as TLogTarget[]) : [LOG_TARGET.CONSOLE];
+
+    this.elasticsearchUrl = ELASTICSEARCH_URL;
   }
 
   public static getInstance(): Config {

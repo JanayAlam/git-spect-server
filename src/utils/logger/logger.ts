@@ -3,6 +3,7 @@ import Config, { LOG_TARGET } from "../../parameters/config";
 import { LOGGER_DATETIME_FORMAT } from "./logger.helpers";
 import {
   consoleTransport,
+  elasticsearchTransport,
   errorFileTransport,
   httpFileTransport,
   infoFileTransport,
@@ -23,6 +24,14 @@ const createTransports = () => {
     transports.push(infoFileTransport);
     transports.push(httpFileTransport);
     transports.push(errorFileTransport);
+  }
+
+  // elasticsearch transport
+  if (
+    configInstance.log.includes(LOG_TARGET.ELASTICSEARCH) &&
+    elasticsearchTransport
+  ) {
+    transports.push(elasticsearchTransport);
   }
 
   return transports;
