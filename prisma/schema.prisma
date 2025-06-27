@@ -7,71 +7,123 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserStatus {
+enum USER_STATUS {
   ACTIVE
   BANNED
-  PENDING
+  DISABLED
 }
 
 model User {
-  id          String      @id @default(uuid())
-  email       String      @unique
-  avatarUrl   String?     @map("avatar_url")
-  name        String?
-  provider    String
-  providerId  String      @map("provider_id")
-  accessToken String?     @map("access_token")
-  userStatus  UserStatus  @default(ACTIVE) @map("user_status")
-  isDeleted   Boolean     @default(false) @map("is_deleted")
-  roles       UserRoles[]
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
+  id            String         @id @default(uuid())
+  email         String         @unique
+  avatarUrl     String?        @map("avatar_url")
+  name          String?
+  password      String?        @db.VarChar(255)
+  userStatus    USER_STATUS    @default(ACTIVE) @map("user_status")
+  isDeleted     Boolean        @default(false) @map("is_deleted")
+  roles         UserRole[]
+  oAuthAccounts OAuthAccount[]
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@map("users")
+}
+
+enum OAUTH_PROVIDER {
+  GITHUB
+}
+
+model OAuthAccount {
+  id           String         @id @default(uuid())
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String         @map("user_id")
+  provider     OAUTH_PROVIDER
+  providerId   String         @map("provider_id")
+  accessToken  String?        @map("access_token")
+  refreshToken String?        @map("refresh_token")
+  expiresAt    DateTime?      @map("expires_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([provider, providerId])
-  @@index([email])
+  @@map("oauth_accounts")
 }
 
 model Role {
-  id          String            @id @default(uuid())
-  name        String            @unique @db.VarChar(15)
-  description String?           @db.VarChar(255)
-  createdAt   DateTime          @default(now()) @map("created_at")
-  updatedAt   DateTime          @updatedAt @map("updated_at")
-  users       UserRoles[]
-  permissions RolePermissions[]
+  id          String           @id @default(uuid())
+  name        String           @unique @db.VarChar(15)
+  description String?          @db.VarChar(255)
+  users       UserRole[]
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
 
   @@index([name])
+  @@map("roles")
 }
 
-model UserRoles {
-  user      User     @relation(fields: [userId], references: [id])
+model UserRole {
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String   @map("user_id")
-  role      Role     @relation(fields: [roleId], references: [id])
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
   roleId    String   @map("role_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+enum PERMISSION_RESOURCE {
+  USER
+  ROLE
+  USER_ROLES
+  PERMISSION
+  ROLE_PERMISSIONS
+}
+
+enum PERMISSION_ACTION {
+  READ
+  WRITE
+  UPDATE
+  DELETE
+  MANAGE
 }
 
 model Permission {
-  id          String            @id @default(uuid())
-  name        String            @unique @db.VarChar(15)
-  description String?           @db.VarChar(255)
-  createdAt   DateTime          @default(now()) @map("created_at")
-  updatedAt   DateTime          @updatedAt @map("updated_at")
-  roles       RolePermissions[]
+  id                String              @id @default(uuid())
+  name              String              @unique @db.VarChar(15)
+  description       String?             @db.VarChar(255)
+  roles             RolePermission[]
+  resource          PERMISSION_RESOURCE
+  action            PERMISSION_ACTION
+  requiresOwnership Boolean             @default(false) @map("requires_ownership")
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
 
+  @@unique([resource, action])
   @@index([name])
+  @@index([resource])
+  @@map("permissions")
 }
 
-model RolePermissions {
-  role         Role       @relation(fields: [roleId], references: [id])
-  roleId       String     @map("role_id")
-  permission   Permission @relation(fields: [permissionId], references: [id])
-  permissionId String     @map("permission_id")
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
+enum PERMISSION_TYPE {
+  ALLOW
+  DENY
+  RESTRICT
+}
+
+model RolePermission {
+  role           Role            @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId         String          @map("role_id")
+  permission     Permission      @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  permissionId   String          @map("permission_id")
+  permissionType PERMISSION_TYPE @default(ALLOW) @map("permission_type")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
 
   @@id([roleId, permissionId])
+  @@map("role_permissions")
 }
