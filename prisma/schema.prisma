@@ -10,7 +10,7 @@ datasource db {
 enum USER_STATUS {
   ACTIVE
   BANNED
-  DISABLED
+  PENDING
 }
 
 model User {
@@ -19,7 +19,7 @@ model User {
   avatarUrl     String?        @map("avatar_url")
   name          String?
   password      String?        @db.VarChar(255)
-  userStatus    USER_STATUS    @default(ACTIVE) @map("user_status")
+  userStatus    USER_STATUS    @default(PENDING) @map("user_status")
   isDeleted     Boolean        @default(false) @map("is_deleted")
   roles         UserRole[]
   oAuthAccounts OAuthAccount[]
@@ -90,11 +90,13 @@ enum PERMISSION_ACTION {
   UPDATE
   DELETE
   MANAGE
+  CHANGE_PASSWORD
+  UPDATE_PROFILE
 }
 
 model Permission {
   id                String              @id @default(uuid())
-  name              String              @unique @db.VarChar(15)
+  name              String              @unique @db.VarChar(40)
   description       String?             @db.VarChar(255)
   roles             RolePermission[]
   resource          PERMISSION_RESOURCE
