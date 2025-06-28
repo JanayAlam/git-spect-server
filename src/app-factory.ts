@@ -1,10 +1,10 @@
 import cors from "cors";
 import express from "express";
+import configureRoutes from "./api/routers";
 import configureCorrelationId from "./middlewares/configure-correlationId";
 import globalErrorHandler from "./middlewares/global-error-handler";
 import routeNotFoundHandler from "./middlewares/route-not-found-handler";
 import { expressWinstonHttpLogger } from "./middlewares/winston-logger";
-import configureRoutes from "./routes";
 
 const createApp = (): express.Express => {
   // express application

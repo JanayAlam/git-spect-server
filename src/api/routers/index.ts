@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import healthRouter from "../api/v1/health";
+import healthRouter from "./v1/health.router";
 
 interface IRoute {
   baseUrl: string;

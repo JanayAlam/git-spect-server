@@ -3,10 +3,8 @@
   "version": "1.0.0",
   "description": "Git commit tracker application",
   "scripts": {
-    "cli:dev": "ts-node src/cli/index.ts",
-    "cli:staging": "node dist/cli/index.js",
-    "cli:production": "node dist/cli/index.js",
     "migrate:dev": "dotenv -e .env.development -- prisma migrate dev",
+    "migrate:reset": "dotenv -e .env.development -- prisma migrate reset",
     "migrate:staging": "dotenv -e .env.staging -- prisma migrate deploy",
     "migrate:production": "dotenv -e .env.production -- prisma migrate deploy",
     "seed:dev": "dotenv -e .env.development -- prisma db seed",
@@ -27,7 +25,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.10.1",
-    "commander": "^14.0.0",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
     "dotenv": "^16.5.0",
@@ -40,6 +38,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",
+    "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.0.1",

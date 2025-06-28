@@ -1,39 +1,17 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "USER_STATUS" AS ENUM ('ACTIVE', 'BANNED', 'PENDING');
 
-  - You are about to drop the `Permission` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Role` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `RolePermissions` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `UserRoles` table. If the table is not empty, all the data it contains will be lost.
+-- CreateEnum
+CREATE TYPE "OAUTH_PROVIDER" AS ENUM ('GITHUB');
 
-*/
--- DropForeignKey
-ALTER TABLE "RolePermissions" DROP CONSTRAINT "RolePermissions_permission_id_fkey";
+-- CreateEnum
+CREATE TYPE "PERMISSION_RESOURCE" AS ENUM ('USER', 'ROLE', 'USER_ROLES', 'PERMISSION', 'ROLE_PERMISSIONS');
 
--- DropForeignKey
-ALTER TABLE "RolePermissions" DROP CONSTRAINT "RolePermissions_role_id_fkey";
+-- CreateEnum
+CREATE TYPE "PERMISSION_ACTION" AS ENUM ('READ', 'WRITE', 'UPDATE', 'DELETE', 'MANAGE', 'CHANGE_PASSWORD', 'UPDATE_PROFILE');
 
--- DropForeignKey
-ALTER TABLE "UserRoles" DROP CONSTRAINT "UserRoles_role_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "UserRoles" DROP CONSTRAINT "UserRoles_user_id_fkey";
-
--- DropTable
-DROP TABLE "Permission";
-
--- DropTable
-DROP TABLE "Role";
-
--- DropTable
-DROP TABLE "RolePermissions";
-
--- DropTable
-DROP TABLE "User";
-
--- DropTable
-DROP TABLE "UserRoles";
+-- CreateEnum
+CREATE TYPE "PERMISSION_TYPE" AS ENUM ('ALLOW', 'DENY', 'RESTRICT');
 
 -- CreateTable
 CREATE TABLE "users" (
@@ -41,11 +19,10 @@ CREATE TABLE "users" (
     "email" TEXT NOT NULL,
     "avatar_url" TEXT,
     "name" TEXT,
-    "provider" TEXT NOT NULL,
-    "provider_id" TEXT NOT NULL,
-    "access_token" TEXT,
-    "user_status" "USER_STATUS" NOT NULL DEFAULT 'ACTIVE',
+    "password" VARCHAR(255),
+    "user_status" "USER_STATUS" NOT NULL DEFAULT 'PENDING',
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
+    "role_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -53,11 +30,26 @@ CREATE TABLE "users" (
 );
 
 -- CreateTable
+CREATE TABLE "oauth_accounts" (
+    "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "provider" "OAUTH_PROVIDER" NOT NULL,
+    "provider_id" TEXT NOT NULL,
+    "access_token" TEXT,
+    "refresh_token" TEXT,
+    "expires_at" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "oauth_accounts_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "roles" (
     "id" TEXT NOT NULL,
     "name" VARCHAR(15) NOT NULL,
     "description" VARCHAR(255),
-    "role_weight" INTEGER NOT NULL DEFAULT 0,
+    "is_system_generated" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -65,25 +57,13 @@ CREATE TABLE "roles" (
 );
 
 -- CreateTable
-CREATE TABLE "user_roles" (
-    "user_id" TEXT NOT NULL,
-    "role_id" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "user_roles_pkey" PRIMARY KEY ("user_id","role_id")
-);
-
--- CreateTable
 CREATE TABLE "permissions" (
     "id" TEXT NOT NULL,
-    "name" VARCHAR(15) NOT NULL,
+    "name" VARCHAR(40) NOT NULL,
     "description" VARCHAR(255),
     "resource" "PERMISSION_RESOURCE" NOT NULL,
     "action" "PERMISSION_ACTION" NOT NULL,
     "requires_ownership" BOOLEAN NOT NULL DEFAULT false,
-    "max_weight" INTEGER,
-    "min_weight" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -108,7 +88,7 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 CREATE INDEX "users_email_idx" ON "users"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "users_provider_provider_id_key" ON "users"("provider", "provider_id");
+CREATE UNIQUE INDEX "oauth_accounts_provider_provider_id_key" ON "oauth_accounts"("provider", "provider_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "roles_name_key" ON "roles"("name");
@@ -117,10 +97,10 @@ CREATE UNIQUE INDEX "roles_name_key" ON "roles"("name");
 CREATE INDEX "roles_name_idx" ON "roles"("name");
 
 -- CreateIndex
-CREATE INDEX "roles_role_weight_idx" ON "roles"("role_weight");
+CREATE UNIQUE INDEX "permissions_name_key" ON "permissions"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "permissions_name_key" ON "permissions"("name");
+CREATE INDEX "permissions_name_idx" ON "permissions"("name");
 
 -- CreateIndex
 CREATE INDEX "permissions_resource_idx" ON "permissions"("resource");
@@ -129,10 +109,10 @@ CREATE INDEX "permissions_resource_idx" ON "permissions"("resource");
 CREATE UNIQUE INDEX "permissions_resource_action_key" ON "permissions"("resource", "action");
 
 -- AddForeignKey
-ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "users" ADD CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "oauth_accounts" ADD CONSTRAINT "oauth_accounts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permissions_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE CASCADE;

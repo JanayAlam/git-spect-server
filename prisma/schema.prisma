@@ -21,8 +21,9 @@ model User {
   password      String?        @db.VarChar(255)
   userStatus    USER_STATUS    @default(PENDING) @map("user_status")
   isDeleted     Boolean        @default(false) @map("is_deleted")
-  roles         UserRole[]
   oAuthAccounts OAuthAccount[]
+  role          Role           @relation(fields: [roleId], references: [id])
+  roleId        String         @map("role_id")
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
 
@@ -52,28 +53,17 @@ model OAuthAccount {
 }
 
 model Role {
-  id          String           @id @default(uuid())
-  name        String           @unique @db.VarChar(15)
-  description String?          @db.VarChar(255)
-  users       UserRole[]
-  permissions RolePermission[]
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
+  id                String           @id @default(uuid())
+  name              String           @unique @db.VarChar(15)
+  description       String?          @db.VarChar(255)
+  isSystemGenerated Boolean          @default(false) @map("is_system_generated")
+  users             User[]
+  permissions       RolePermission[]
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
 
   @@index([name])
   @@map("roles")
-}
-
-model UserRole {
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @map("user_id")
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  roleId    String   @map("role_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@id([userId, roleId])
-  @@map("user_roles")
 }
 
 enum PERMISSION_RESOURCE {

@@ -4,6 +4,7 @@ import {
   PERMISSION_TYPE,
   PrismaClient,
 } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -11,10 +12,12 @@ const rolesData = [
   {
     name: "super_admin",
     description: "Highest possible role",
+    isSystemGenerated: true,
   },
   {
     name: "user",
     description: "Normal user role",
+    isSystemGenerated: true,
   },
 ];
 
@@ -264,6 +267,13 @@ const rolePermissionsData = [
 ];
 
 const main = async () => {
+  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+  const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
+
+  if (!superAdminEmail || !superAdminPassword) {
+    throw new Error("Super admin credentials are missing");
+  }
+
   await prisma.role.createMany({
     data: rolesData,
     skipDuplicates: true,
@@ -274,45 +284,33 @@ const main = async () => {
     skipDuplicates: true,
   });
 
-  const allRoles = await prisma.role.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-  });
-
-  const roleMap = allRoles.reduce((acc: any, cur) => {
-    acc[cur.name] = cur.id;
-    return acc;
-  }, {});
-
-  const allPermissions = await prisma.permission.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-  });
-
-  const permissionMap = allPermissions.reduce((acc: any, cur) => {
-    acc[cur.name] = cur.id;
-    return acc;
-  }, {});
-
   await Promise.all(
     rolePermissionsData.map((rolePermission: any) =>
       prisma.rolePermission.create({
         data: {
           permissionType: rolePermission.permissionType,
           role: {
-            connect: { id: roleMap[rolePermission.roleName] },
+            connect: { name: rolePermission.roleName },
           },
           permission: {
-            connect: { id: permissionMap[rolePermission.permissionName] },
+            connect: { name: rolePermission.permissionName },
           },
         },
       }),
     ),
   );
+
+  const hashedPassword = await bcrypt.hash(superAdminPassword, 10);
+
+  await prisma.user.create({
+    data: {
+      email: superAdminEmail,
+      password: hashedPassword,
+      role: {
+        connect: { name: "super_admin" },
+      },
+    },
+  });
 };
 
 main()
