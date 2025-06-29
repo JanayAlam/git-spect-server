@@ -3,6 +3,7 @@ import ApiError, { IAPIError } from "../ApiError";
 export interface IErrorField {
   name: string;
   message: string;
+  in: "body" | "param" | "query";
 }
 
 export interface IBadRequestError extends IAPIError {
