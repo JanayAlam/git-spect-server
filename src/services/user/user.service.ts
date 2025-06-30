@@ -1,4 +1,4 @@
-import { USER_STATUS } from "@prisma/client";
+import { User, USER_STATUS } from "@prisma/client";
 import prisma from "../../database";
 import { SYSTEM_ROLE } from "../../database/enums/system-role";
 
@@ -10,6 +10,8 @@ export interface ICreateUserData {
   userStatus?: USER_STATUS;
   roleName?: string;
 }
+
+type TOptions = { omit?: Partial<Record<keyof User, boolean>> };
 
 export const createUser = (userData: ICreateUserData) => {
   const { roleName, ...rest } = userData;
@@ -25,16 +27,17 @@ export const createUser = (userData: ICreateUserData) => {
   });
 };
 
-export const getUserById = (id: string) => {
+export const getUserById = (id: string, options?: TOptions) => {
   return prisma.user.findUnique({
     where: { id },
-    omit: { password: true },
+    omit: options ? { ...options.omit } : {},
   });
 };
 
-export const getUserByEmail = (email: string) => {
-  return prisma.user.findUnique({
+export const getUserByEmail = (email: string, options?: TOptions) => {
+  return prisma.user.findFirst({
     where: { email },
-    omit: { password: true },
+    include: { role: true },
+    omit: options ? { ...options.omit } : {},
   });
 };

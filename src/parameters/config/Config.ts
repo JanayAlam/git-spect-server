@@ -20,6 +20,11 @@ class Config {
   superAdminEmail: string;
   superAdminPassword: string;
 
+  jwtSecretSuperAdmin: string;
+  jwtSecretUser: string;
+  jwtAccessTokenExpire: string;
+  jwtRefreshTokenExpire: string;
+
   private constructor() {
     const {
       NODE_ENV,
@@ -29,6 +34,10 @@ class Config {
       LOG,
       SUPER_ADMIN_EMAIL,
       SUPER_ADMIN_PASSWORD,
+      JWT_SECRET_SUPER_ADMIN,
+      JWT_SECRET_USER,
+      JWT_ACCESS_TOKEN_EXPIRE,
+      JWT_REFRESH_TOKEN_EXPIRE,
     } = process.env;
 
     this.environment = Object.values(ENVIRONMENT).includes(
@@ -46,6 +55,11 @@ class Config {
 
     this.superAdminEmail = SUPER_ADMIN_EMAIL || "";
     this.superAdminPassword = SUPER_ADMIN_PASSWORD || "";
+
+    this.jwtSecretSuperAdmin = JWT_SECRET_SUPER_ADMIN || "";
+    this.jwtSecretUser = JWT_SECRET_USER || "";
+    this.jwtAccessTokenExpire = JWT_ACCESS_TOKEN_EXPIRE || "1h";
+    this.jwtRefreshTokenExpire = JWT_REFRESH_TOKEN_EXPIRE || "1d";
   }
 
   public static getInstance(): Config {

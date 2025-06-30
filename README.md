@@ -19,8 +19,8 @@ yarn migrate:reset
 ### June 30, 2025
 
 - [x] Remove secured request body data from logging (error)
-- [ ] Implement libs for password encryptions and jwt token
-- [ ] Implement login functionalities
+- [x] Implement libs for password encryptions and jwt token
+- [x] Implement login functionalities
 
 ### July 1, 2025
 

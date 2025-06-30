@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { registerRequestBodySchema } from "../../../dto/request-dto/auth.schema";
+import {
+  loginRequestBodySchema,
+  registerRequestBodySchema,
+} from "../../../dto/request-dto/auth.schema";
 import zodValidator from "../../../middlewares/zod-validator";
 import {
   loginController,
@@ -14,6 +17,10 @@ authRouter.post(
   registerController,
 );
 
-authRouter.post("/login", loginController);
+authRouter.post(
+  "/login",
+  zodValidator(loginRequestBodySchema),
+  loginController,
+);
 
 export default authRouter;

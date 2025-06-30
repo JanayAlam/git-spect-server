@@ -4,7 +4,7 @@ import configureRoutes from "./api/routers";
 import configureCorrelationId from "./middlewares/configure-correlationId";
 import globalErrorHandler from "./middlewares/global-error-handler";
 import routeNotFoundHandler from "./middlewares/route-not-found-handler";
-import { expressWinstonHttpLogger } from "./middlewares/winston-logger";
+import expressWinstonHttpLogger from "./middlewares/winston-logger";
 
 const createApp = (): express.Express => {
   // express application
