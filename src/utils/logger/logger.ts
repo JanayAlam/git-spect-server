@@ -1,12 +1,7 @@
 import { createLogger, format, transport } from "winston";
 import Config, { LOG_TARGET } from "../../parameters/config";
 import { LOGGER_DATETIME_FORMAT } from "./logger.helpers";
-import {
-  consoleTransport,
-  errorFileTransport,
-  httpFileTransport,
-  infoFileTransport,
-} from "./transports";
+import { consoleTransport, errorFileTransport } from "./transports";
 
 const configInstance = Config.getInstance();
 
@@ -20,8 +15,6 @@ const createTransports = () => {
 
   // file transport
   if (configInstance.log.includes(LOG_TARGET.FILE)) {
-    transports.push(infoFileTransport);
-    transports.push(httpFileTransport);
     transports.push(errorFileTransport);
   }
 

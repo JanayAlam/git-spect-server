@@ -3,9 +3,26 @@ import InternalServerError from "../errors/api-error-impl/InternalServerError";
 import ApiError from "../errors/ApiError";
 import Config, { ENVIRONMENT } from "../parameters/config";
 import logger from "../utils/logger";
+import { deepCopy } from "../utils/object";
 
-// env variables
 const configInstance = Config.getInstance();
+
+const maskSensitiveData = (obj: Record<string, unknown>) => {
+  const objCopy = deepCopy(obj);
+
+  const sensitiveRules: Record<string, string> = {
+    password: "******",
+    authorization: "********************",
+  };
+
+  for (const key of Object.keys(objCopy)) {
+    if (Object.keys(sensitiveRules).includes(key)) {
+      objCopy[key] = sensitiveRules[key];
+    }
+  }
+
+  return objCopy;
+};
 
 const globalErrorHandler = (
   err: unknown,
@@ -18,20 +35,20 @@ const globalErrorHandler = (
   process.on("unhandledRejection", (reason, promise) => {
     logger.error("Unhandled Rejection at:", promise, "reason:", reason, {
       correlationId,
-      body: req.body,
+      body: maskSensitiveData(req.body),
       url: req.originalUrl,
       method: req.method,
-      headers: req.headers,
+      headers: maskSensitiveData(req.headers),
     });
   });
 
   process.on("uncaughtException", (err) => {
     logger.error("Uncaught Exception thrown:", err, {
       correlationId,
-      body: req.body,
+      body: maskSensitiveData(req.body),
       url: req.originalUrl,
       method: req.method,
-      headers: req.headers,
+      headers: maskSensitiveData(req.headers),
     });
   });
 
@@ -48,13 +65,13 @@ const globalErrorHandler = (
   const errObj = apiError.toObject();
 
   logger.error({
-    ...errObj,
+    response: errObj,
     correlationId,
     stack: (err as Error).stack,
-    body: req.body,
+    body: maskSensitiveData(req.body),
     url: req.originalUrl,
     method: req.method,
-    headers: req.headers,
+    headers: maskSensitiveData(req.headers),
   });
 
   res.status(errObj.statusCode).json(errObj);

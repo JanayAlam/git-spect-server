@@ -24,11 +24,6 @@ const createFileTransport = (level: TLoggerLevel, filename: string) => {
   });
 };
 
-export const infoFileTransport = createFileTransport(
-  LOGGER_LEVEL.INFO,
-  "logs/info/info-%DATE%.log",
-);
-
 export const httpFileTransport = createFileTransport(
   LOGGER_LEVEL.HTTP,
   "logs/http/http-%DATE%.log",
@@ -37,13 +32,6 @@ export const httpFileTransport = createFileTransport(
 export const errorFileTransport = createFileTransport(
   LOGGER_LEVEL.ERROR,
   "logs/error/error-%DATE%.log",
-);
-
-infoFileTransport.on("error", (_error: any) => {});
-
-infoFileTransport.on(
-  "rotate",
-  (_oldFilename: string, _newFilename: string) => {},
 );
 
 httpFileTransport.on("error", (_error: any) => {});
