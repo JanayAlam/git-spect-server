@@ -164,13 +164,7 @@ export const githubAppLoginController = (
     const config = require("../../parameters/config").default.getInstance();
     const clientId = config.githubClientId;
 
-    const scope = encodeURIComponent("repo,read:user,user:email");
-
-    const githubAuthorizeUrl =
-      `https://github.com/login/oauth/authorize?client_id=${clientId}` +
-      `&scope=${scope}` +
-      `&allow_signup=true`;
-
+    const githubAuthorizeUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}`;
     res.redirect(githubAuthorizeUrl);
   } catch (err) {
     next(err);

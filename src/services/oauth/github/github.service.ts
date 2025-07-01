@@ -5,7 +5,9 @@ import Config from "../../../parameters/config";
 
 const configInstance = Config.getInstance();
 
-export const getGitHubAppInstallationAccessToken = async (installationId: number) => {
+export const getGitHubAppInstallationAccessToken = async (
+  installationId: number,
+) => {
   const octokit = new Octokit({
     authStrategy: createAppAuth,
     auth: {
@@ -20,7 +22,6 @@ export const getGitHubAppInstallationAccessToken = async (installationId: number
   return (auth as { token: string }).token;
 };
 
-// Optionally, add a function to get the app JWT (for debugging or app-level API calls)
 export const getGitHubAppJwt = async () => {
   const octokit = new Octokit({
     authStrategy: createAppAuth,
@@ -35,7 +36,6 @@ export const getGitHubAppJwt = async () => {
   return (auth as { token: string }).token;
 };
 
-// Exchange code for user access token (GitHub App user-to-server OAuth flow)
 export const exchangeCodeForUserAccessToken = async (code: string) => {
   const url = "https://github.com/login/oauth/access_token";
   const { data } = await axios.post(
