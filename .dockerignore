@@ -1,0 +1,17 @@
+node_modules
+.env*
+dist
+logs/
+.git
+
+gitspect.private-key.pem
+
+src/generated/prisma
+.vscode
+
+Dockerfile.dev
+Dockerfile.test
+
+docker-compose.yml
+docker-compose.override.yml
+docker-compose.test.yml

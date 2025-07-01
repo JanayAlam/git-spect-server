@@ -8,6 +8,10 @@ import { deepCopy } from "../utils/object";
 const configInstance = Config.getInstance();
 
 const maskSensitiveData = (obj: Record<string, unknown>) => {
+  if (!obj || typeof obj !== "object") {
+    return obj;
+  }
+
   const objCopy = deepCopy(obj);
 
   const sensitiveRules: Record<string, string> = {

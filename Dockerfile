@@ -8,7 +8,14 @@ COPY package.json yarn.lock ./
 # Install all dependencies (including devDependencies to build)
 RUN yarn install --frozen-lockfile
 
-COPY . .
+# Copy only necessary source files for building
+COPY src/ ./src/
+COPY prisma/ ./prisma/
+COPY tsconfig.json ./
+COPY eslint.config.js ./
+COPY nodemon.json ./
+COPY .prettierrc ./
+COPY .npmrc ./
 
 # Build TypeScript to JavaScript
 RUN yarn build:clean
@@ -25,6 +32,9 @@ RUN yarn install --frozen-lockfile --production
 # Copy built files from build stage
 COPY --from=build /app/dist ./dist
 
+# Copy Prisma files needed for runtime
+COPY --from=build /app/prisma ./prisma
+
 EXPOSE 8000
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/server.js"]

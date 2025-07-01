@@ -11,3 +11,5 @@ dist/
 /src/generated/prisma
 
 logs/
+
+gitspect.private-key.pem

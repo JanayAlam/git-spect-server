@@ -3,6 +3,7 @@
     "ADMINPASSWORD",
     "ADMINUSERNAME",
     "BASICAUTH",
+    "gitspect",
     "IAPI",
     "INITDB",
     "spect"

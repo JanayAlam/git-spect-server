@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { SYSTEM_ROLE } from "../../database/enums/system-role";
 import {
   TLoginRequestBody,
   TRegisterRequestBody,
@@ -38,6 +39,9 @@ export const registerController = async (
     const newUser = await createUser({
       email,
       password: hashedPassword,
+      role: {
+        connect: { name: SYSTEM_ROLE.USER },
+      },
     });
 
     res.status(201).json(newUser);

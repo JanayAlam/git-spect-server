@@ -1,6 +1,7 @@
 import express, { Router } from "express";
 import authRouter from "./v1/auth.router";
 import healthRouter from "./v1/health.router";
+import oauthRouter from "./v1/oauth.router";
 
 interface IRoute {
   baseUrl: string;
@@ -16,6 +17,10 @@ const configureRoutes = (app: express.Express) => {
     {
       baseUrl: "/auth",
       router: authRouter,
+    },
+    {
+      baseUrl: "/oauth",
+      router: oauthRouter,
     },
   ];
 

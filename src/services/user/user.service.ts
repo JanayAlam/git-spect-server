@@ -1,6 +1,5 @@
-import { User, USER_STATUS } from "@prisma/client";
+import { Prisma, USER_STATUS } from "@prisma/client";
 import prisma from "../../database";
-import { SYSTEM_ROLE } from "../../database/enums/system-role";
 
 export interface ICreateUserData {
   email: string;
@@ -11,33 +10,46 @@ export interface ICreateUserData {
   roleName?: string;
 }
 
-type TOptions = { omit?: Partial<Record<keyof User, boolean>> };
+type TOptions = { include?: Prisma.UserInclude; omit?: Prisma.UserOmit };
 
-export const createUser = (userData: ICreateUserData) => {
-  const { roleName, ...rest } = userData;
-
+export const createUser = (
+  userInput: Prisma.UserCreateInput,
+  options?: TOptions,
+) => {
   return prisma.user.create({
-    data: {
-      ...rest,
-      role: {
-        connect: { name: roleName || SYSTEM_ROLE.USER },
-      },
-    },
-    omit: { password: true },
+    data: userInput,
+    omit: options ? { ...options.omit } : { password: true },
+    include: options ? { ...options.include } : { role: true },
   });
 };
 
 export const getUserById = (id: string, options?: TOptions) => {
   return prisma.user.findUnique({
     where: { id },
-    omit: options ? { ...options.omit } : {},
+    omit: options ? { ...options.omit } : { password: true },
+    include: options ? { ...options.include } : { role: true },
   });
 };
 
-export const getUserByEmail = (email: string, options?: TOptions) => {
+export const getUserByEmail = (email: string | null, options?: TOptions) => {
+  if (!email) return null;
+
   return prisma.user.findFirst({
     where: { email },
     include: { role: true },
     omit: options ? { ...options.omit } : {},
+  });
+};
+
+export const updateUserById = (
+  id: string,
+  data: Prisma.UserUpdateInput,
+  options?: TOptions,
+) => {
+  return prisma.user.update({
+    where: { id },
+    data,
+    omit: options?.omit,
+    include: options?.include ?? { role: true },
   });
 };
