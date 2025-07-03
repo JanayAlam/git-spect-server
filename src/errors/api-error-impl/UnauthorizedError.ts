@@ -2,7 +2,7 @@ import ApiError from "../ApiError";
 
 class UnauthorizedError extends ApiError {
   constructor(message: string, correlationId?: string) {
-    super(message, 401, correlationId);
+    super(message, 403, correlationId);
   }
 }
 

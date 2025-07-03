@@ -4,8 +4,8 @@ import { SYSTEM_ROLE } from "../../database/enums/system-role";
 import BadRequestError from "../../errors/api-error-impl/BadRequestError";
 import InternalServerError from "../../errors/api-error-impl/InternalServerError";
 import UnauthenticatedError from "../../errors/api-error-impl/UnauthenticatedError";
-import token from "../../lib/token";
-import { IBaseJwtPayload } from "../../lib/token/token";
+import token from "../../lib/jwt-token";
+import { IBaseJwtPayload } from "../../lib/jwt-token/jwt-token";
 import { upsertOAuthAccount } from "../../services/oauth-account";
 import {
   exchangeCodeForUserAccessToken,

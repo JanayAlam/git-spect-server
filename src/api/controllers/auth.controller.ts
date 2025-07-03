@@ -2,16 +2,17 @@ import { NextFunction, Request, Response } from "express";
 import { SYSTEM_ROLE } from "../../database/enums/system-role";
 import {
   TLoginRequestBody,
+  TRefreshAccessTokenRequestBody,
   TRegisterRequestBody,
 } from "../../dto/request-dto/auth.schema";
 import BadRequestError from "../../errors/api-error-impl/BadRequestError";
 import encryption from "../../lib/encryption";
-import tokenService from "../../lib/token";
-import { IBaseJwtPayload } from "../../lib/token/token";
+import jwtToken from "../../lib/jwt-token";
+import { IBaseJwtPayload } from "../../lib/jwt-token/jwt-token";
 import { createUser, getUserByEmail } from "../../services/user/user.service";
 
 export const registerController = async (
-  req: Request<unknown, unknown, TRegisterRequestBody, unknown>,
+  req: Request<unknown, unknown, TRegisterRequestBody>,
   res: Response,
   next: NextFunction,
 ) => {
@@ -48,7 +49,7 @@ export const registerController = async (
 };
 
 export const loginController = async (
-  req: Request<unknown, unknown, TLoginRequestBody, unknown>,
+  req: Request<unknown, unknown, TLoginRequestBody>,
   res: Response,
   next: NextFunction,
 ) => {
@@ -89,10 +90,23 @@ export const loginController = async (
       roleId: user.role.id,
     };
 
-    const accessToken = tokenService.signToken(tokenPayload, "access");
-    const refreshToken = tokenService.signToken(tokenPayload, "refresh");
+    const accessToken = jwtToken.signToken(tokenPayload, "access");
+    const refreshToken = jwtToken.signToken(tokenPayload, "refresh");
 
     res.json({ accessToken, refreshToken, user: loggedInUser });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// TODO: Implement
+export const refreshAccessTokenController = async (
+  req: Request<unknown, unknown, TRefreshAccessTokenRequestBody>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    res.json(req.body.refreshToken);
   } catch (err) {
     next(err);
   }

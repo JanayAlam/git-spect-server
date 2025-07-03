@@ -1,7 +1,7 @@
 import { PERMISSION_ACTION, PERMISSION_RESOURCE } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import prisma from "../database";
-import UnauthenticatedError from "../errors/api-error-impl/UnauthenticatedError";
+import UnauthorizedError from "../errors/api-error-impl/UnauthorizedError";
 
 const hasPermission = (
   resource: PERMISSION_RESOURCE,
@@ -13,7 +13,7 @@ const hasPermission = (
       const user = req.user;
 
       if (!user || !user.role) {
-        throw new UnauthenticatedError("Unauthorized: No user or role found");
+        throw new UnauthorizedError("No user or role found");
       }
 
       const permission = await prisma.rolePermission.findFirst({
@@ -28,7 +28,7 @@ const hasPermission = (
       });
 
       if (!permission) {
-        next(new UnauthenticatedError("Forbidden access request"));
+        next(new UnauthorizedError("Access request denied"));
       }
 
       next();

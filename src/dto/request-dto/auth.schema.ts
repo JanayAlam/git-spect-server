@@ -20,5 +20,12 @@ export const loginRequestBodySchema = z
   })
   .strict();
 
+export const refreshAccessTokenBodySchema = z.object({
+  refreshToken: z.string(),
+});
+
 export type TRegisterRequestBody = z.infer<typeof registerRequestBodySchema>;
 export type TLoginRequestBody = z.infer<typeof loginRequestBodySchema>;
+export type TRefreshAccessTokenRequestBody = z.infer<
+  typeof refreshAccessTokenBodySchema
+>;
