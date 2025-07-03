@@ -5,6 +5,7 @@ import { LOGGER_LEVEL } from "../utils/logger/logger.types";
 const expressWinstonHttpLogger = expressWinston.logger({
   level: LOGGER_LEVEL.HTTP,
   winstonInstance: logger,
+  meta: false,
   expressFormat: true,
   colorize: false,
 });

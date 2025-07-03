@@ -29,9 +29,8 @@ const isAuthenticated = () => {
           id: payload.sub,
           roleId: payload.roleId,
         },
-        include: {
-          role: true,
-        },
+        include: { role: true },
+        omit: { password: true },
       });
 
       if (!user) {

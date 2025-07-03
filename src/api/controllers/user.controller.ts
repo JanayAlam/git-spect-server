@@ -6,7 +6,7 @@ export const getMeController = (
   next: NextFunction,
 ) => {
   try {
-    res.status(200).json({ message: "ok" });
+    res.status(200).json(req.user);
   } catch (err) {
     next(err);
   }
