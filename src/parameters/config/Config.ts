@@ -20,8 +20,7 @@ class Config {
   superAdminEmail: string;
   superAdminPassword: string;
 
-  jwtSecretSuperAdmin: string;
-  jwtSecretUser: string;
+  jwtSecret: string;
   jwtAccessTokenExpire: string;
   jwtRefreshTokenExpire: string;
 
@@ -39,8 +38,7 @@ class Config {
       LOG,
       SUPER_ADMIN_EMAIL,
       SUPER_ADMIN_PASSWORD,
-      JWT_SECRET_SUPER_ADMIN,
-      JWT_SECRET_USER,
+      JWT_SECRET,
       JWT_ACCESS_TOKEN_EXPIRE,
       JWT_REFRESH_TOKEN_EXPIRE,
       GITHUB_APP_ID,
@@ -65,8 +63,7 @@ class Config {
     this.superAdminEmail = SUPER_ADMIN_EMAIL || "";
     this.superAdminPassword = SUPER_ADMIN_PASSWORD || "";
 
-    this.jwtSecretSuperAdmin = JWT_SECRET_SUPER_ADMIN || "";
-    this.jwtSecretUser = JWT_SECRET_USER || "";
+    this.jwtSecret = JWT_SECRET || "";
     this.jwtAccessTokenExpire = JWT_ACCESS_TOKEN_EXPIRE || "1h";
     this.jwtRefreshTokenExpire = JWT_REFRESH_TOKEN_EXPIRE || "1d";
 

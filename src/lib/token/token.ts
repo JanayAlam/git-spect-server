@@ -1,51 +1,47 @@
-import jwt, { SignOptions } from "jsonwebtoken";
-import { SYSTEM_ROLE, TSystemRole } from "../../database/enums/system-role";
+import jwt, { JwtPayload, SignOptions } from "jsonwebtoken";
 import Config from "../../parameters/config";
 
 const configInstance = Config.getInstance();
 
-type TokenSubject = TSystemRole | string;
 type TokenKind = "access" | "refresh";
 
-function getSecretAndExpire(subject: TokenSubject, kind: TokenKind) {
-  if (subject === SYSTEM_ROLE.SUPER_ADMIN) {
-    return {
-      secret: configInstance.jwtSecretSuperAdmin,
-      expiresIn:
-        kind === "access"
-          ? configInstance.jwtAccessTokenExpire
-          : configInstance.jwtRefreshTokenExpire,
-    };
-  } else {
-    return {
-      secret: configInstance.jwtSecretUser,
-      expiresIn:
-        kind === "access"
-          ? configInstance.jwtAccessTokenExpire
-          : configInstance.jwtRefreshTokenExpire,
-    };
-  }
+export interface IBaseJwtPayload extends JwtPayload {
+  sub: string; // subject (user id or similar)
+  roleId?: string; // role id
+  [key: string]: any;
 }
 
-export function signToken<T>(
-  payload: T,
-  subject: TokenSubject,
+export const signToken = (
+  payload: IBaseJwtPayload,
   kind: TokenKind,
-) {
-  const { secret, expiresIn } = getSecretAndExpire(subject, kind);
+  customOptions?: SignOptions,
+) => {
+  if (!payload || !payload.sub) {
+    throw new Error('JWT payload must include a "sub" (subject) property');
+  }
+
+  const expiresIn =
+    kind === "access"
+      ? configInstance.jwtAccessTokenExpire
+      : configInstance.jwtRefreshTokenExpire;
 
   const options: SignOptions = {
     expiresIn: expiresIn as any,
+    ...customOptions,
   };
 
-  return jwt.sign({ data: payload }, secret, options);
-}
+  return jwt.sign(payload, configInstance.jwtSecret, options);
+};
 
-export function verifyToken(
-  token: string,
-  subject: TokenSubject,
-  kind: TokenKind,
-) {
-  const { secret } = getSecretAndExpire(subject, kind);
-  return jwt.verify(token, secret);
-}
+export const verifyToken = (token: string) => {
+  const payload = jwt.verify(
+    token,
+    configInstance.jwtSecret,
+  ) as IBaseJwtPayload;
+
+  if (payload.exp && Date.now() >= payload.exp * 1000) {
+    return null;
+  }
+
+  return payload;
+};

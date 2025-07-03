@@ -3,6 +3,7 @@ import {
   PERMISSION_RESOURCE,
   PERMISSION_TYPE,
   PrismaClient,
+  USER_STATUS,
 } from "@prisma/client";
 import bcrypt from "bcrypt";
 
@@ -306,6 +307,7 @@ const main = async () => {
     data: {
       email: superAdminEmail,
       password: hashedPassword,
+      userStatus: USER_STATUS.ACTIVE,
       role: {
         connect: { name: "super_admin" },
       },

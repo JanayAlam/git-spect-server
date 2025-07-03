@@ -6,12 +6,7 @@ const routeNotFoundHandler = (
   _res: Response,
   next: NextFunction,
 ) => {
-  next(
-    new NotFoundError(
-      "Route does not exists",
-      req.headers["x-correlation-id"] as string,
-    ),
-  );
+  next(new NotFoundError("Route does not exists"));
 };
 
 export default routeNotFoundHandler;

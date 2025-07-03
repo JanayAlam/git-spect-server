@@ -15,8 +15,8 @@ class BadRequestError extends ApiError {
 
   constructor(
     message: string,
-    correlationId: string,
     errorFields: IErrorField[],
+    correlationId?: string,
   ) {
     super(message, 400, correlationId);
     this.errorFields = errorFields;

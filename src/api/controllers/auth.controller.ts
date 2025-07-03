@@ -6,7 +6,8 @@ import {
 } from "../../dto/request-dto/auth.schema";
 import BadRequestError from "../../errors/api-error-impl/BadRequestError";
 import encryption from "../../lib/encryption";
-import token from "../../lib/token";
+import tokenService from "../../lib/token";
+import { IBaseJwtPayload } from "../../lib/token/token";
 import { createUser, getUserByEmail } from "../../services/user/user.service";
 
 export const registerController = async (
@@ -21,17 +22,13 @@ export const registerController = async (
     });
 
     if (existingUser) {
-      throw new BadRequestError(
-        "Registration failed",
-        req.headers["x-correlation-id"] as string,
-        [
-          {
-            name: "email",
-            message: "This email address is already registered",
-            in: "body",
-          },
-        ],
-      );
+      throw new BadRequestError("Registration failed", [
+        {
+          name: "email",
+          message: "This email address is already registered",
+          in: "body",
+        },
+      ]);
     }
 
     const hashedPassword = await encryption.hash(password);
@@ -60,54 +57,40 @@ export const loginController = async (
     const user = await getUserByEmail(email);
 
     if (!user || !user.password) {
-      throw new BadRequestError(
-        "Login failed",
-        req.headers["x-correlation-id"] as string,
-        [
-          {
-            name: "email",
-            message: "Invalid email or password",
-            in: "body",
-          },
-          {
-            name: "password",
-            message: "Invalid email or password",
-            in: "body",
-          },
-        ],
-      );
+      throw new BadRequestError("Login failed", [
+        {
+          name: "email",
+          message: "Invalid email or password",
+          in: "body",
+        },
+        {
+          name: "password",
+          message: "Invalid email or password",
+          in: "body",
+        },
+      ]);
     }
 
     const isPasswordValid = await encryption.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new BadRequestError(
-        "Login failed",
-        req.headers["x-correlation-id"] as string,
-        [
-          {
-            name: "password",
-            message: "Invalid email or password",
-            in: "body",
-          },
-        ],
-      );
+      throw new BadRequestError("Login failed", [
+        {
+          name: "password",
+          message: "Invalid email or password",
+          in: "body",
+        },
+      ]);
     }
 
     const { password: _, ...loggedInUser } = user;
 
-    const tokenPayload = {
-      id: user.id,
-      email: user.email,
-      roleName: user.role.name,
+    const tokenPayload: IBaseJwtPayload = {
+      sub: user.id,
+      roleId: user.role.id,
     };
 
-    const accessToken = token.signToken(tokenPayload, user.role.name, "access");
-
-    const refreshToken = token.signToken(
-      tokenPayload,
-      user.role.name,
-      "refresh",
-    );
+    const accessToken = tokenService.signToken(tokenPayload, "access");
+    const refreshToken = tokenService.signToken(tokenPayload, "refresh");
 
     res.json({ accessToken, refreshToken, user: loggedInUser });
   } catch (err) {

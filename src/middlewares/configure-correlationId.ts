@@ -16,6 +16,7 @@ const configureCorrelationId = (
       req.headers[KEY] = correlationId;
     }
 
+    req.correlationId = correlationId;
     res.setHeader(KEY, correlationId);
 
     next();

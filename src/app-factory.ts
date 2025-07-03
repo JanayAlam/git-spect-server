@@ -1,3 +1,5 @@
+import "./types/express.custom";
+
 import cors from "cors";
 import express from "express";
 import configureRoutes from "./api/routers";

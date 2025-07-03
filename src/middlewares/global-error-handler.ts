@@ -34,7 +34,7 @@ const globalErrorHandler = (
   res: Response,
   _next: NextFunction,
 ) => {
-  const correlationId = req.headers["x-correlation-id"] as string;
+  const correlationId = req.correlationId;
 
   process.on("unhandledRejection", (reason, promise) => {
     logger.error("Unhandled Rejection at:", promise, "reason:", reason, {
@@ -63,9 +63,9 @@ const globalErrorHandler = (
           configInstance.environment === ENVIRONMENT.PRODUCTION
             ? "Something went wrong"
             : (err as Error).message,
-          req.headers["x-correlation-id"] as string,
         );
 
+  apiError.setCorrelationId(correlationId);
   const errObj = apiError.toObject();
 
   logger.error({

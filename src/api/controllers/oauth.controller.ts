@@ -5,6 +5,7 @@ import BadRequestError from "../../errors/api-error-impl/BadRequestError";
 import InternalServerError from "../../errors/api-error-impl/InternalServerError";
 import UnauthenticatedError from "../../errors/api-error-impl/UnauthenticatedError";
 import token from "../../lib/token";
+import { IBaseJwtPayload } from "../../lib/token/token";
 import { upsertOAuthAccount } from "../../services/oauth-account";
 import {
   exchangeCodeForUserAccessToken,
@@ -26,18 +27,12 @@ export const integrateGitHubAppController = async (
     const { installationId } = req.body;
 
     if (!installationId) {
-      throw new UnauthenticatedError(
-        "Missing installation_id",
-        req.headers["x-correlation-id"] as string,
-      );
+      throw new UnauthenticatedError("Missing installation_id");
     }
 
     const userId = (req as any).user?.id;
     if (!userId) {
-      throw new UnauthenticatedError(
-        "User not authenticated",
-        req.headers["x-correlation-id"] as string,
-      );
+      throw new UnauthenticatedError("User not authenticated");
     }
     const accessToken = await getGitHubAppInstallationAccessToken(
       Number(installationId),
@@ -67,24 +62,17 @@ export const githubAppOAuthCallbackController = async (
     const { code, error } = req.query;
 
     if (error) {
-      throw new UnauthenticatedError(
-        "GitHub OAuth authorization failed",
-        req.headers["x-correlation-id"] as string,
-      );
+      throw new UnauthenticatedError("GitHub OAuth authorization failed");
     }
 
     if (!code) {
-      throw new BadRequestError(
-        "Missing session code",
-        req.headers["x-correlation-id"] as string,
-        [
-          {
-            name: "code",
-            message: "Missing session code from github",
-            in: "query",
-          },
-        ],
-      );
+      throw new BadRequestError("Missing session code", [
+        {
+          name: "code",
+          message: "Missing session code from github",
+          in: "query",
+        },
+      ]);
     }
 
     const accessToken = await exchangeCodeForUserAccessToken(code as string);
@@ -121,29 +109,16 @@ export const githubAppOAuthCallbackController = async (
     }
 
     if (!user) {
-      throw new InternalServerError(
-        "User creation or update failed",
-        req.headers["x-correlation-id"] as string,
-      );
+      throw new InternalServerError("User creation or update failed");
     }
 
-    const tokenPayload = {
-      id: user.id,
-      email: user.email,
-      roleName: user.role.name,
+    const tokenPayload: IBaseJwtPayload = {
+      sub: user.id,
+      roleId: user.role.id,
     };
 
-    const jwtAccessToken = token.signToken(
-      tokenPayload,
-      tokenPayload.roleName,
-      "access",
-    );
-
-    const jwtRefreshToken = token.signToken(
-      tokenPayload,
-      user.role.name,
-      "refresh",
-    );
+    const jwtAccessToken = token.signToken(tokenPayload, "access");
+    const jwtRefreshToken = token.signToken(tokenPayload, "refresh");
 
     res.json({
       accessToken: jwtAccessToken,

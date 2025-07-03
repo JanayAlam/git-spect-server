@@ -11,7 +11,6 @@ const zodValidator = (
 ) => {
   return (req: Request, _res: Response, next: NextFunction) => {
     try {
-      const correlationId = (req.headers["x-correlation-id"] as string) || "";
       if (bodySchema) {
         const result = bodySchema.safeParse(req.body);
         if (!result.success) {
@@ -20,11 +19,7 @@ const zodValidator = (
             message: err.message,
             in: "body",
           }));
-          throw new BadRequestError(
-            "Invalid request body",
-            correlationId,
-            errorFields,
-          );
+          throw new BadRequestError("Invalid request body", errorFields);
         }
       }
       if (paramsSchema) {
@@ -35,11 +30,7 @@ const zodValidator = (
             message: err.message,
             in: "param",
           }));
-          throw new BadRequestError(
-            "Invalid request params",
-            correlationId,
-            errorFields,
-          );
+          throw new BadRequestError("Invalid request params", errorFields);
         }
       }
       if (querySchema) {
@@ -50,11 +41,7 @@ const zodValidator = (
             message: err.message,
             in: "query",
           }));
-          throw new BadRequestError(
-            "Invalid request query",
-            correlationId,
-            errorFields,
-          );
+          throw new BadRequestError("Invalid request query", errorFields);
         }
       }
       next();

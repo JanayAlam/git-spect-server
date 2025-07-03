@@ -5,7 +5,7 @@ export interface IInternalServerError extends IAPIError {
 }
 
 class InternalServerError extends ApiError {
-  constructor(message: string, correlationId: string) {
+  constructor(message: string, correlationId?: string) {
     super(message, 500, correlationId);
   }
 }
