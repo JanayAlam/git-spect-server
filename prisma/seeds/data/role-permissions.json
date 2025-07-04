@@ -1,0 +1,52 @@
+[
+  {
+    "roleName": "super_admin",
+    "permissionName": "perm_manage_users",
+    "permissionType": "ALLOW"
+  },
+  {
+    "roleName": "super_admin",
+    "permissionName": "perm_change_password",
+    "permissionType": "ALLOW"
+  },
+  {
+    "roleName": "super_admin",
+    "permissionName": "perm_update_profile",
+    "permissionType": "ALLOW"
+  },
+  {
+    "roleName": "super_admin",
+    "permissionName": "perm_manage_roles",
+    "permissionType": "ALLOW"
+  },
+  {
+    "roleName": "super_admin",
+    "permissionName": "perm_manage_user_roles",
+    "permissionType": "ALLOW"
+  },
+  {
+    "roleName": "super_admin",
+    "permissionName": "perm_manage_permissions",
+    "permissionType": "ALLOW"
+  },
+  {
+    "roleName": "super_admin",
+    "permissionName": "perm_manage_role_permissions",
+    "permissionType": "ALLOW"
+  },
+  {
+    "roleName": "user",
+    "permissionName": "perm_read_users",
+    "permissionType": "ALLOW"
+  },
+  {
+    "roleName": "user",
+    "permissionName": "perm_change_password",
+    "permissionType": "ALLOW"
+  },
+  {
+    "roleName": "user",
+    "permissionName": "perm_update_profile",
+    "permissionType": "ALLOW"
+  }
+]

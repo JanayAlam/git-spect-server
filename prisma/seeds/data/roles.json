@@ -1,0 +1,12 @@
+[
+  {
+    "name": "super_admin",
+    "description": "Highest possible role",
+    "isSystemGenerated": true
+  },
+  {
+    "name": "user",
+    "description": "Normal user role",
+    "isSystemGenerated": true
+  }
+]

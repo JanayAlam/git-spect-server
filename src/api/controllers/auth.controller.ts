@@ -122,14 +122,13 @@ export const refreshAccessTokenController = async (
       throw new UnauthenticatedError("Token is not valid");
     }
 
-    const newAccessToken = jwtToken.signToken(
-      { sub: user.id, roleId: user.role.id },
-      "access",
-    );
-    const newRefreshToken = jwtToken.signToken(
-      { sub: user.id, roleId: user.role.id },
-      "refresh",
-    );
+    const newPayload: IBaseJwtPayload = {
+      sub: user.id,
+      roleId: user.role.id,
+    };
+
+    const newAccessToken = jwtToken.signToken(newPayload, "access");
+    const newRefreshToken = jwtToken.signToken(newPayload, "refresh");
 
     res.json({
       accessToken: newAccessToken,
