@@ -34,14 +34,18 @@ export const signToken = (
 };
 
 export const verifyToken = (token: string) => {
-  const payload = jwt.verify(
-    token,
-    configInstance.jwtSecret,
-  ) as IBaseJwtPayload;
+  try {
+    const payload = jwt.verify(
+      token,
+      configInstance.jwtSecret,
+    ) as IBaseJwtPayload;
 
-  if (payload.exp && Date.now() >= payload.exp * 1000) {
+    if (payload.exp && Date.now() >= payload.exp * 1000) {
+      return null;
+    }
+
+    return payload;
+  } catch {
     return null;
   }
-
-  return payload;
 };

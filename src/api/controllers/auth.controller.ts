@@ -6,10 +6,15 @@ import {
   TRegisterRequestBody,
 } from "../../dto/request-dto/auth.schema";
 import BadRequestError from "../../errors/api-error-impl/BadRequestError";
+import UnauthenticatedError from "../../errors/api-error-impl/UnauthenticatedError";
 import encryption from "../../lib/encryption";
 import jwtToken from "../../lib/jwt-token";
 import { IBaseJwtPayload } from "../../lib/jwt-token/jwt-token";
-import { createUser, getUserByEmail } from "../../services/user/user.service";
+import {
+  createUser,
+  getUserByEmail,
+  getUserById,
+} from "../../services/user/user.service";
 
 export const registerController = async (
   req: Request<unknown, unknown, TRegisterRequestBody>,
@@ -99,14 +104,38 @@ export const loginController = async (
   }
 };
 
-// TODO: Implement
 export const refreshAccessTokenController = async (
   req: Request<unknown, unknown, TRefreshAccessTokenRequestBody>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    res.json(req.body.refreshToken);
+    const { refreshToken } = req.body;
+
+    const payload = jwtToken.verifyToken(refreshToken);
+    if (!payload) {
+      throw new UnauthenticatedError("Token is not valid");
+    }
+
+    const user = await getUserById(payload.sub);
+    if (!user) {
+      throw new UnauthenticatedError("Token is not valid");
+    }
+
+    const newAccessToken = jwtToken.signToken(
+      { sub: user.id, roleId: user.role.id },
+      "access",
+    );
+    const newRefreshToken = jwtToken.signToken(
+      { sub: user.id, roleId: user.role.id },
+      "refresh",
+    );
+
+    res.json({
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      user,
+    });
   } catch (err) {
     next(err);
   }
