@@ -1,11 +1,10 @@
+import { createAppAuth } from "@octokit/auth-app";
+import { Octokit } from "@octokit/rest";
 import { OAUTH_PROVIDER, USER_STATUS } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import { SYSTEM_ROLE } from "../../database/enums/system-role";
-import BadRequestError from "../../errors/api-error-impl/BadRequestError";
-import InternalServerError from "../../errors/api-error-impl/InternalServerError";
 import UnauthenticatedError from "../../errors/api-error-impl/UnauthenticatedError";
 import token from "../../lib/jwt-token";
-import { IBaseJwtPayload } from "../../lib/jwt-token/jwt-token";
 import { upsertOAuthAccount } from "../../services/oauth-account";
 import {
   exchangeCodeForUserAccessToken,
@@ -52,31 +51,27 @@ export const integrateGitHubAppController = async (
     next(err);
   }
 };
-
 export const githubAppOAuthCallbackController = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { code, error } = req.query;
+    const { code, error, installation_id } = req.query;
 
     if (error) {
-      throw new UnauthenticatedError("GitHub OAuth authorization failed");
+      throw new Error("GitHub OAuth authorization failed");
     }
 
     if (!code) {
-      throw new BadRequestError("Missing session code", [
-        {
-          name: "code",
-          message: "Missing session code from github",
-          in: "query",
-        },
-      ]);
+      throw new Error("Missing `code` from GitHub OAuth callback");
     }
 
-    const accessToken = await exchangeCodeForUserAccessToken(code as string);
-    const githubUser = await getGitHubUserProfile(accessToken);
+    const userAccessToken = await exchangeCodeForUserAccessToken(
+      code as string,
+    );
+
+    const githubUser = await getGitHubUserProfile(userAccessToken);
 
     let user = await getUserByEmail(githubUser.email);
 
@@ -90,8 +85,8 @@ export const githubAppOAuthCallbackController = async (
         oAuthAccounts: {
           create: {
             provider: OAUTH_PROVIDER.GITHUB,
-            providerId: githubUser.id.toString(),
-            accessToken,
+            providerId: githubUser.login,
+            accessToken: userAccessToken,
           },
         },
       });
@@ -103,16 +98,34 @@ export const githubAppOAuthCallbackController = async (
       await upsertOAuthAccount({
         userId: user.id,
         provider: OAUTH_PROVIDER.GITHUB,
-        providerId: githubUser.id.toString(),
-        accessToken,
+        providerId: githubUser.login,
+        accessToken: userAccessToken,
       });
     }
 
     if (!user) {
-      throw new InternalServerError("User creation or update failed");
+      throw new Error("User creation or update failed");
     }
 
-    const tokenPayload: IBaseJwtPayload = {
+    if (installation_id) {
+      const octokitApp = new Octokit({
+        authStrategy: createAppAuth,
+        auth: {
+          appId: process.env.GITHUB_APP_ID!,
+          privateKey: process.env.GITHUB_PRIVATE_KEY!,
+          clientId: process.env.GITHUB_CLIENT_ID!,
+          clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+          installationId: Number(installation_id),
+        },
+      });
+
+      await octokitApp.auth({
+        type: "installation",
+        installationId: Number(installation_id),
+      });
+    }
+
+    const tokenPayload = {
       sub: user.id,
       roleId: user.role.id,
     };
@@ -136,10 +149,7 @@ export const githubAppLoginController = (
   next: NextFunction,
 ) => {
   try {
-    const config = require("../../parameters/config").default.getInstance();
-    const clientId = config.githubClientId;
-
-    const githubAuthorizeUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}`;
+    const githubAuthorizeUrl = `https://github.com/apps/gitspect/installations/new`;
     res.redirect(githubAuthorizeUrl);
   } catch (err) {
     next(err);

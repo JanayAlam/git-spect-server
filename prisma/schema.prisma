@@ -38,10 +38,10 @@ enum OAUTH_PROVIDER {
 model OAuthAccount {
   id          String         @id @default(uuid())
   user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String         @map("user_id")
+  userId      String         @unique @map("user_id")
   provider    OAUTH_PROVIDER
   providerId  String         @map("provider_id")
-  accessToken String?        @map("access_token")
+  accessToken String         @map("access_token")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

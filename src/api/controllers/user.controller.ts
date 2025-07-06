@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-export const getMeController = (
+export const getMeController = async (
   req: Request,
   res: Response,
   next: NextFunction,
