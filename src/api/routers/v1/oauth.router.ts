@@ -1,15 +1,12 @@
 import { Router } from "express";
 import {
-  githubAppLoginController,
+  githubAppAuthorizeController,
   githubAppOAuthCallbackController,
-  integrateGitHubAppController,
 } from "../../controllers/oauth.controller";
 
 const oauthRouter = Router({ mergeParams: true });
 
-oauthRouter.get("/github/authorize", githubAppLoginController);
-
-oauthRouter.post("/github/integrate", integrateGitHubAppController);
+oauthRouter.get("/github/authorize", githubAppAuthorizeController);
 
 oauthRouter.get("/github/callback", githubAppOAuthCallbackController);
 

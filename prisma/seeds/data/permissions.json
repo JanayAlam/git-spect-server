@@ -187,5 +187,12 @@
     "requiresOwnership": false,
     "resource": "ROLE_PERMISSIONS",
     "action": "DELETE"
+  },
+  {
+    "name": "perm_manage_rooms",
+    "description": "Manage rooms",
+    "requiresOwnership": true,
+    "resource": "ROOM",
+    "action": "MANAGE"
   }
 ]

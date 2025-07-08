@@ -6,7 +6,8 @@
     "gitspect",
     "IAPI",
     "INITDB",
-    "spect"
+    "spect",
+    "superadmin"
   ],
   "eslint.useFlatConfig": true
 }

@@ -1,5 +1,5 @@
 import { createAppAuth } from "@octokit/auth-app";
-import { Octokit } from "@octokit/core";
+import { Octokit } from "@octokit/rest";
 import axios from "axios";
 import Config from "../../../parameters/config";
 
@@ -55,8 +55,9 @@ export const exchangeCodeForUserAccessToken = async (code: string) => {
 
 // Fetch GitHub user profile using user access token
 export const getGitHubUserProfile = async (accessToken: string) => {
-  const { data } = await axios.get("https://api.github.com/user", {
-    headers: { Authorization: `Bearer ${accessToken}` },
+  const octokit = new Octokit({
+    auth: accessToken,
   });
+  const { data } = await octokit.rest.users.getAuthenticated();
   return data;
 };

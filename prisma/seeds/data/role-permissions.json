@@ -48,5 +48,10 @@
     "roleName": "user",
     "permissionName": "perm_update_profile",
     "permissionType": "ALLOW"
+  },
+  {
+    "roleName": "user",
+    "permissionName": "perm_manage_rooms",
+    "permissionType": "ALLOW"
   }
 ]
