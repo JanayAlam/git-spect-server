@@ -24,6 +24,7 @@ class Config {
   jwtAccessTokenExpire: string;
   jwtRefreshTokenExpire: string;
 
+  githubAppRedirectUri: string;
   githubAppId: string;
   githubClientId: string;
   githubSecret: string;
@@ -41,6 +42,7 @@ class Config {
       JWT_SECRET,
       JWT_ACCESS_TOKEN_EXPIRE,
       JWT_REFRESH_TOKEN_EXPIRE,
+      GITHUB_APP_REDIRECT_URI,
       GITHUB_APP_ID,
       GITHUB_CLIENT_ID,
       GITHUB_SECRET,
@@ -67,6 +69,9 @@ class Config {
     this.jwtAccessTokenExpire = JWT_ACCESS_TOKEN_EXPIRE || "1h";
     this.jwtRefreshTokenExpire = JWT_REFRESH_TOKEN_EXPIRE || "1d";
 
+    this.githubAppRedirectUri =
+      GITHUB_APP_REDIRECT_URI ||
+      "http://localhost:8000/api/v1/oauth/github/callback";
     this.githubAppId = GITHUB_APP_ID || "";
     this.githubClientId = GITHUB_CLIENT_ID || "";
     this.githubSecret = GITHUB_SECRET || "";

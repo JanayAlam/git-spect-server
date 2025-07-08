@@ -1,7 +1,9 @@
 import { OAUTH_PROVIDER, USER_STATUS } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import { SYSTEM_ROLE } from "../../database/enums/system-role";
 import token from "../../lib/jwt-token";
+import Config from "../../parameters/config";
 import {
   findOAuthAccountByProvider,
   upsertOAuthAccount,
@@ -16,13 +18,37 @@ import {
   updateUserById,
 } from "../../services/user";
 
-export const githubAppAuthorizeController = async (
-  req: Request,
+const configInstance = Config.getInstance();
+
+export const githubAppInstallController = async (
+  _req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
     return res.redirect("https://github.com/apps/gitspect/installations/new");
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const githubAppAuthorizeController = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const clientId = configInstance.githubClientId;
+    const scope = "user:email repo";
+
+    const authUrl =
+      `https://github.com/login/oauth/authorize?` +
+      `client_id=${clientId}&` +
+      `redirect_uri=${encodeURIComponent(configInstance.githubAppRedirectUri)}&` +
+      `scope=${encodeURIComponent(scope)}&` +
+      `response_type=code`;
+
+    return res.redirect(authUrl);
   } catch (err) {
     next(err);
   }
@@ -50,6 +76,12 @@ export const githubAppOAuthCallbackController = async (
 
     const githubUser = await getGitHubUserProfile(userAccessToken);
 
+    const hasAppInstalled = await checkIfUserInstalledApp(githubUser.login);
+
+    if (!hasAppInstalled) {
+      return res.redirect("https://github.com/apps/gitspect/installations/new");
+    }
+
     const existingOAuthAccount = await findOAuthAccountByProvider(
       OAUTH_PROVIDER.GITHUB,
       githubUser.login,
@@ -58,7 +90,7 @@ export const githubAppOAuthCallbackController = async (
     let user = await getUserByEmail(githubUser.email);
 
     if (existingOAuthAccount) {
-      // OAuth account exist
+      // OAuth account exists, update access token
       await upsertOAuthAccount({
         userId: existingOAuthAccount.userId,
         provider: OAUTH_PROVIDER.GITHUB,
@@ -118,3 +150,36 @@ export const githubAppOAuthCallbackController = async (
     next(err);
   }
 };
+
+// 4. HELPER FUNCTION TO CHECK APP INSTALLATION
+async function checkIfUserInstalledApp(username: string): Promise<boolean> {
+  try {
+    const jwt = generateJWT();
+    const response = await fetch(`https://api.github.com/app/installations`, {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+        Accept: "application/vnd.github+json",
+      },
+    });
+
+    const installations = (await response.json()) as any;
+
+    return installations.some(
+      (installation: any) => installation.account.login === username,
+    );
+  } catch {
+    return false;
+  }
+}
+
+function generateJWT(): string {
+  const payload = {
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 600,
+    iss: process.env.GITHUB_APP_ID,
+  };
+
+  return jwt.sign(payload, configInstance.githubPrivateKey, {
+    algorithm: "RS256",
+  });
+}
